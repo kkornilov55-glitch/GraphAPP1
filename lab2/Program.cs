@@ -6,22 +6,22 @@ namespace lab2
     
     internal class Program
     {
-        const int MAX_N = 20;
-        const byte MAX_WEIGHT = 100;
+        const int N_MAX = 20;
+        const int LENGTH_MAX = 100;
         const byte INF = byte.MaxValue;
 
         static int N; //Количество вершин графа
-        static byte[,] weightMatrix; //Весовая матрица
+        static int[,] M; //Весовая матрица
 
         static void Main(string[] args)
         {
             while (true)
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-                FileInfo[] filesInfo = dirInfo.GetFiles("*.txt");
+                DirectoryInfo Dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+                FileInfo[] Files = Dir.GetFiles("*.txt");
 
                 //Проверка
-                if (filesInfo.Length == 0)
+                if (Files.Length == 0)
                 {
                     Console.WriteLine("В каталоге приложения не обнаружено текстовых файлов!");
                     return;
@@ -29,126 +29,58 @@ namespace lab2
 
                 //Выбор файла
                 int choiceFile;
-
-                while (true)
+                try
                 {
                     Console.Clear();
 
+                    //Меню выбора файлов
                     Console.WriteLine("В каталоге приложения обнаружены текстовые файлы:");
-                    for (int i = 0; i < filesInfo.Length; i++)
+                    for (int i = 0; i < Files.Length; i++)
                     {
-                        Console.WriteLine("{0}: {1}", i + 1, filesInfo[i].Name);
+                        Console.WriteLine("{0}: {1}", i + 1, Files[i].Name);
                     }
-                    Console.Write($"Номер файла с описанием графа (1 .. {filesInfo.Length}): ");
+                    Console.Write($"Номер файла с описанием графа (1 .. {Files.Length}): ");
 
-                    if (int.TryParse(Console.ReadLine(), out choiceFile) && choiceFile >= 1 && choiceFile <= filesInfo.Length) break;
-                    else Console.Write("\nНекорректный ввод, нажмите любую клавишу для продолжения...");
-                    Console.ReadKey();
+
+                    //Получение номера файла
+                    choiceFile = int.Parse(Console.ReadLine());
+                    if (choiceFile < 1 || choiceFile > Files.Length)
+                    {
+                        Error("Неверный индекс файла, файл с таким номером отсутствует");
+                        return;
+                    }
+                }
+                catch (FormatException)
+                {
+                    Error("Неверный индекс файла, числовое преобразование невозможно");
+                    return;
                 }
                 choiceFile--; //Для нас индексация с 0
 
 
-
-                //Чтение выбранного файла
-                FileInfo mainFile = filesInfo[choiceFile];
-
-                StreamReader streamReader = new StreamReader(mainFile.Name);
-
-                try
-                {
-                    N = int.Parse(streamReader.ReadLine() ?? "0");
-                    if (N < 1 || N > MAX_N)
-                    {
-                        Error("Недопустимое число вершин!");
-                        return;
-                    }
-                    weightMatrix = new byte[N, N];
-
-                    string[] currentStr;
-                    for (int i = 0; i < N; i++)
-                    {
-                        currentStr = streamReader.ReadLine().Split(" ");
-                        if (currentStr.Length != N)
-                        {
-                            Error("Некорректный формат данных в файле! Число вершин не соответствует действительности.");
-                            return;
-                        }
-
-                        for (int j = 0; j < N; j++)
-                        {
-                            //Недопустимое значение веса ребра
-                            if (short.Parse(currentStr[j]) < 0)
-                            {
-                                Error("Некорректное значение веса ребра!");
-                                return;
-                            }
-
-                            byte weight = byte.Parse(currentStr[j]);
-                            if (weight > 0 && weight <= MAX_WEIGHT) //Допустимый вес
-                            {
-                                weightMatrix[i, j] = weight;
-                            }
-                            else //Отсутствие ребра -> бесконечное расстояние/(A->A, B->B, ... вес == 0)
-                            {
-                                if (i == j)
-                                    weightMatrix[i, j] = 0;
-                                else
-                                    weightMatrix[i, j] = INF;
-                            }
-                        }
-                    }
-                    //Что-то осталось в файле?
-                    if (streamReader.ReadToEnd() != string.Empty)
-                    {
-                        Error("Некорректная запись матрицы смежности!");
-                        return;
-                    }
-
-                    streamReader.Close();
-                }
-                catch (FormatException)
-                {
-                    Error("Парсинг не удался! Некорректный формат данных в файле.");
-                    return;
-                }
-                catch (FileNotFoundException)
-                {
-                    Console.WriteLine("В текущей дериктории не существует файла с таким именем");
-                    return;
-                }
-                catch
-                {
-                    Console.WriteLine("Неизвестная ошибка");
-                    return;
-                }
-
-                ////Проверка результатов чтения
-                //for (int i = 0; i < N; i++)
-                //{
-                //    for (int j = 0;j < N; j++)
-                //    {
-                //        Console.Write(weightMatrix[i,j] + "\t");
-                //    }
-                //    Console.WriteLine();
-                //}
+                //Попытка чтения выбранного файла
+                FileInfo mainFile = Files[choiceFile];
+                bool ReadOK = ReadGraph(mainFile.Name);
+                if (!ReadOK) return;
 
 
-
-                //Работа с файлом...
+                //Работа с файлом
                 while (true)
                 {
                     Console.Clear();
+                    //Меню выбора файла
                     Console.WriteLine($"Операции над графом \"{mainFile.Name}\":");
                     Console.WriteLine("1. Вывод матрицы смежности.\n2. Вывод списка рёбер.\n3. Вывод списков смежности.\n4. Определение свойств графа.\n5. Выход из программы.");
                     Console.WriteLine("Введите номер действия (1 .. 5):");
 
-                    if (!byte.TryParse(Console.ReadLine(), out byte choiceOpiration) || choiceOpiration > 5 || choiceOpiration < 1)
+                    if (!int.TryParse(Console.ReadLine(), out int Case) || Case > 5 || Case < 1)
                     {
                         Error("Некорректный номер операции");
                         continue;
                     }
 
-                    switch(choiceOpiration)
+                    Console.WriteLine();
+                    switch(Case)
                     {
                         case 1:
                             PrintAdjacencyMatrix();
@@ -174,6 +106,79 @@ namespace lab2
             }
 
         }
+        static bool ReadGraph(string FileName)
+        {
+            StreamReader F = new StreamReader(FileName);
+
+            try
+            {
+            //Считываем число вершин графа
+            N = int.Parse(F.ReadLine() ?? "0");
+            if (N < 1 || N > N_MAX)
+            {
+                Error("Недопустимое число вершин");
+                return false;
+            }
+            M = new int[N, N];
+
+            //Считываем матрицу
+            string[] currentString;
+                for (int i = 0; i < N; i++)
+                {
+                    currentString = F.ReadLine().Split(" ");
+                    if (currentString.Length != N)
+                    {
+                        Error("Некорректный формат данных в файле! Число вершин не соответствует действительности.");
+                        return false;
+                    }
+
+                    for (int j = 0; j < N; j++)
+                    {
+                        //Недопустимая длинна ребра
+                        if (int.Parse(currentString[j]) < 0)
+                        {
+                            Error("Некорректная длинна ребра");
+                            return false;
+                        }
+
+                        //Допустимая длинна ребра
+                        int length = int.Parse(currentString[j]);
+                        if (length > 0 && length <= LENGTH_MAX)
+                        {
+                            M[i, j] = length;
+                        }
+                        else //Отсутствие ребра -> бесконечное расстояние/(A->A, B->B, ... вес == 0)
+                        {
+                            if (i == j)
+                                M[i, j] = 0;
+                            else
+                                M[i, j] = INF;
+                        }
+                    }
+                }
+
+                //Что-то осталось в файле?
+                if (F.ReadToEnd() != string.Empty)
+                {
+                    Error("Некорректная запись матрицы смежности");
+                    return false;
+                }
+    
+                F.Close();
+            }
+            catch (FormatException)
+            {
+                Error("Числовое приведение невозможно");
+                return false;
+            }
+            catch
+            {
+                Console.WriteLine("Неизвестная ошибка");
+                return false;
+            }
+
+            return true;
+        }
         static void PrintAdjacencyMatrix()
         {
             Console.WriteLine("МАТРИЦА СМЕЖНОСТИ");
@@ -192,10 +197,10 @@ namespace lab2
 
                 for (int j = 0; j < N; j++)
                 {
-                    if (weightMatrix[i, j] == INF || weightMatrix[i, j] == 0)
+                    if (M[i, j] == INF || M[i, j] == 0)
                         Console.Write("\t" + '-');
                     else
-                        Console.Write("\t" + weightMatrix[i,j]);
+                        Console.Write("\t" + M[i,j]);
                 }
                 Console.WriteLine();
             }
@@ -216,10 +221,10 @@ namespace lab2
             {
                 for (int j = 0;j < N;j++)
                 {
-                    if (weightMatrix[i,j] == INF || weightMatrix[i, j] == 0)
+                    if (M[i,j] == INF || M[i, j] == 0)
                         continue;
 
-                    edges.Add(new int[] {start + i, start + j, weightMatrix[i,j]});
+                    edges.Add(new int[] {start + i, start + j, M[i,j]});
                 }
             }
 
@@ -243,9 +248,9 @@ namespace lab2
 
                 for (int j = 0; j < N; j++)
                 {
-                    if (weightMatrix[i, j] == 0 || weightMatrix[i, j] == INF) continue;
+                    if (M[i, j] == 0 || M[i, j] == INF) continue;
 
-                    AdjacencyLists[i].Add(new int[] { j, weightMatrix[i, j] });
+                    AdjacencyLists[i].Add(new int[] { j, M[i, j] });
                 }
             }
 
@@ -274,7 +279,7 @@ namespace lab2
                 for (int j = 0; j < N; j++)
                 {
                     if (i == j)
-                        if (weightMatrix[i, j] != 0)
+                        if (M[i, j] != 0)
                         {
                             if (!loops)
                             {
@@ -282,7 +287,7 @@ namespace lab2
                                 loops = true;
                             }
                                 
-                            Console.Write("{0}({1}) ", Convert.ToChar(i + 'A'), weightMatrix[i, j]);
+                            Console.Write("{0}({1}) ", Convert.ToChar(i + 'A'), M[i, j]);
                         }
                 }
             }
@@ -310,7 +315,7 @@ namespace lab2
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (weightMatrix[i, j] != weightMatrix[j, i]) return true;
+                    if (M[i, j] != M[j, i]) return true;
                 }
             }
 
@@ -323,7 +328,7 @@ namespace lab2
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (weightMatrix[i, j] != 1 && weightMatrix[i, j] != 0 && weightMatrix[i, j] != INF) return true;
+                    if (M[i, j] != 1 && M[i, j] != 0 && M[i, j] != INF) return true;
                 }
             }
 
