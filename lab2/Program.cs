@@ -6,12 +6,9 @@ namespace lab2
     
     internal class Program
     {
-        const int N_MAX = 20;
-        const int LENGTH_MAX = 100;
         const byte INF = byte.MaxValue;
-
         static int N; //Количество вершин графа
-        static int[,] M; //Весовая матрица
+        static int[,] M; //Матрица смежности
 
         static void Main(string[] args)
         {
@@ -95,7 +92,7 @@ namespace lab2
                             PrintGraphProperties();
                             break;
                         case 5:
-                            Console.Write("Выход из программы.\nНажмите любую клавишу для продолжения... ");
+                            Console.Write("ВЫХОД ИЗ ПРОГРАММЫ");
                             Console.ReadKey();
                             return;
                         default:
@@ -109,6 +106,9 @@ namespace lab2
         }
         static bool ReadGraph(string FileName)
         {
+            const int N_MAX = 20;
+            const int LENGTH_MAX = 100;
+
             StreamReader F = new StreamReader(FileName);
 
             try
