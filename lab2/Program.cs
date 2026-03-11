@@ -102,6 +102,7 @@ namespace lab2
                             Error("-");
                             return;
                     }
+                    Console.ReadKey();
                 }
             }
 
@@ -183,17 +184,17 @@ namespace lab2
         {
             Console.WriteLine("МАТРИЦА СМЕЖНОСТИ");
 
-            char start = 'A';
-
+            //Столбцы
             for (int i = 0; i < N; i++)
             {
-                Console.Write("\t" +(char)(start + i));
+                Console.Write("\t" + Convert.ToChar('A' + i));
             }
             Console.WriteLine();
 
+            //Строки
             for (int i = 0; i < N; i++)
             {
-                Console.Write((char)(start + i));
+                Console.Write(Convert.ToChar('A' + i));
 
                 for (int j = 0; j < N; j++)
                 {
@@ -204,14 +205,11 @@ namespace lab2
                 }
                 Console.WriteLine();
             }
-
-            Console.ReadKey();
         }
         static void PrintListEdges()
         {
             Console.WriteLine("СПИСОК РЁБЕР");
-            char start = 'A';
-            Console.WriteLine($"Вершины: {start}-{(char)(start + N-1)}");
+            Console.WriteLine($"Вершины: A-{Convert.ToChar('A' + N-1)}");
 
             List <int[]> edges = new List <int[]>();
 
@@ -224,48 +222,50 @@ namespace lab2
                     if (M[i,j] == INF || M[i, j] == 0)
                         continue;
 
-                    edges.Add(new int[] {start + i, start + j, M[i,j]});
+                    edges.Add(new int[] {'A' + i, 'A' + j, M[i,j]});
                 }
             }
 
             foreach (int[] edge in edges)
             {
-                Console.WriteLine($"{(char)edge[0]}->{(char)edge[1]} ({edge[2]})");
+                Console.WriteLine("{0}->{1} ({2})", Convert.ToChar(edge[0]), Convert.ToChar(edge[1]), edge[2]);
             }
-
-
-            Console.ReadKey();
         }
         static void PrintAdjacencyLists()
         {
             Console.WriteLine("ВЫВОД СПИСКОВ СМЕЖНОСТИ");
 
+            //Массив, списков массивов(Вершина, длинна ребра) ребер исходящих из текущей вершины
             List<int[]>[] AdjacencyLists = new List<int[]> [N];
 
+            //Для всех вершин
             for (int i = 0;i < N;i++)
             {
                 AdjacencyLists[i] = new List<int[]>();
 
+                //Смотрим к каким идут пути 
                 for (int j = 0; j < N; j++)
                 {
+                    //Путь равен 0 или бесконечности, значит ребра нет, пропускаем
                     if (M[i, j] == 0 || M[i, j] == INF) continue;
 
+                    //Добавляем путь в список текущей вершины
                     AdjacencyLists[i].Add(new int[] { j, M[i, j] });
                 }
             }
 
+            //Вывод списков смежности для каждой вершины
             for (int i = 0; i < N;i++)
             {
                 Console.Write(Convert.ToChar(i + 'A') + ": ");
 
+                //Все пути что есть
                 foreach (int[] edge in AdjacencyLists[i])
                 {
                     Console.Write(Convert.ToChar(edge[0] + 'A') + $"({edge[1]}) ");
                 }
                 Console.WriteLine();
             }
-
-            Console.ReadKey();
         }
         static void PrintGraphProperties()
         {
@@ -278,15 +278,16 @@ namespace lab2
             {
                 for (int j = 0; j < N; j++)
                 {
+                    //Элемент на главной диагонали != 0 -> Есть петли
                     if (i == j)
                         if (M[i, j] != 0)
                         {
-                            if (!loops)
+                            if (!loops) //Если это первая петля прописываем текст
                             {
                                 Console.Write("В графе есть петли: ");
                                 loops = true;
                             }
-                                
+                            //Выводим петли и их длины
                             Console.Write("{0}({1}) ", Convert.ToChar(i + 'A'), M[i, j]);
                         }
                 }
@@ -303,10 +304,6 @@ namespace lab2
 
             //Взвешенность
             Console.WriteLine(IsWeightedGraph() ? "Граф взвешенный." : "Граф невзвешенный.");
-
-
-
-            Console.ReadKey();
         }
 
         static bool IsDirectedGraph()
@@ -324,6 +321,7 @@ namespace lab2
 
         static bool IsWeightedGraph()
         {
+            //Проходимся по всем элементам, если какой-либо != 0 или 1 или бесконечности, значит граф взвешенный
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < N; j++)
