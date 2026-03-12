@@ -124,11 +124,22 @@ namespace lab2
             M = new int[N, N];
 
             //Считываем матрицу
-            string[] currentString;
+            string[] currentStringMass;
+            string currentString;
+
                 for (int i = 0; i < N; i++)
                 {
-                    currentString = F.ReadLine().Split(" ");
-                    if (currentString.Length != N)
+                    currentString = F.ReadLine();
+
+                    if (currentString == null)
+                    {
+                        Error("Некорректный формат данных в файле! Число вершин не соответствует действительности.");
+                        return false;
+                    }
+
+                    currentStringMass = currentString.Split(" ");
+
+                    if (currentStringMass.Length != N)
                     {
                         Error("Некорректный формат данных в файле! Число вершин не соответствует действительности.");
                         return false;
@@ -137,14 +148,14 @@ namespace lab2
                     for (int j = 0; j < N; j++)
                     {
                         //Недопустимая длинна ребра
-                        if (int.Parse(currentString[j]) < 0)
+                        if (int.Parse(currentStringMass[j]) < 0 || int.Parse(currentStringMass[j]) > LENGTH_MAX)
                         {
                             Error("Некорректная длинна ребра");
                             return false;
                         }
 
                         //Допустимая длинна ребра
-                        int length = int.Parse(currentString[j]);
+                        int length = int.Parse(currentStringMass[j]);
                         if (length > 0 && length <= LENGTH_MAX)
                         {
                             M[i, j] = length;
@@ -173,11 +184,11 @@ namespace lab2
                 Error("Числовое приведение невозможно");
                 return false;
             }
-            catch
-            {
-                Console.WriteLine("Неизвестная ошибка");
-                return false;
-            }
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
+            //    return false;
+            //}
 
             return true;
         }
