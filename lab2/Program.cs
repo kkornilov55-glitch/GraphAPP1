@@ -68,10 +68,19 @@ namespace lab2
                     Console.Clear();
                     //Меню выбора файла
                     Console.WriteLine($"Операции над графом \"{mainFile.Name}\":");
-                    Console.WriteLine("1. Вывод матрицы смежности.\n2. Вывод списка рёбер.\n3. Вывод списков смежности.\n4. Определение свойств графа.\n5. Выход из программы.");
-                    Console.WriteLine("Введите номер действия (1 .. 5):");
+                    Console.WriteLine
+                        (
+                        "1. Вывод матрицы смежности.\n" +
+                        "2. Вывод списка рёбер.\n" +
+                        "3. Вывод списков смежности.\n" +
+                        "4. Определение свойств графа.\n" +
+                        "5. Матрица кратчайших расстояний (алгоритм Флойда - Уоршелла).\n" +
+                        "6. Кратчайшее расстояние от вершины до остальных вершин (алгоритм Дейкстры).\n" +
+                        "7. Выход из программы."
+                        );
+                    Console.WriteLine("Введите номер действия (1 .. 7):");
 
-                    if (!int.TryParse(Console.ReadLine(), out int Case) || Case > 5 || Case < 1)
+                    if (!int.TryParse(Console.ReadLine(), out int Case) || Case > 7 || Case < 1)
                     {
                         Error("Некорректный номер операции");
                         continue;
@@ -93,6 +102,12 @@ namespace lab2
                             PrintGraphProperties();
                             break;
                         case 5:
+                            PrintMatrixOfShortestDist();
+                            break;
+                        case 6:
+                            PrintShortestDistToEveryV();
+                            break;
+                        case 7:
                             Console.Write("ВЫХОД ИЗ ПРОГРАММЫ");
                             Console.ReadKey();
                             return;
@@ -184,11 +199,6 @@ namespace lab2
                 Error("Числовое приведение невозможно");
                 return false;
             }
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
-            //    return false;
-            //}
 
             return true;
         }
@@ -343,6 +353,15 @@ namespace lab2
             }
 
             return false;
+        }
+
+        static void PrintMatrixOfShortestDist()
+        {
+
+        }
+        static void PrintShortestDistToEveryV()
+        {
+
         }
 
         static void Error(string message)
