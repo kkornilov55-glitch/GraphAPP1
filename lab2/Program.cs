@@ -102,10 +102,10 @@ namespace lab2
                             PrintGraphProperties();
                             break;
                         case 5:
-                            PrintMatrixOfShortestDist();
+                            FloydWarshall();
                             break;
                         case 6:
-                            PrintShortestDistToEveryV();
+                            Dijkstra();
                             break;
                         case 7:
                             Console.Write("ВЫХОД ИЗ ПРОГРАММЫ");
@@ -239,18 +239,30 @@ namespace lab2
 
             for (int i = 0; i < N;i++)
             {
-                for (int j = 0;j < N;j++)
+                for (int j = 0; j < N;j++)
                 {
                     if (M[i,j] == INF || M[i, j] == 0)
                         continue;
 
-                    edges.Add(new int[] {'A' + i, 'A' + j, M[i,j]});
+                    if (IsDirectedGraph())
+                    {
+                        edges.Add(new int[] { 'A' + i, 'A' + j, M[i, j] });
+                    }
+                    else //В неориентированном графе, ватрица весов симметрична, поэтому добавляем ребра выше и на главной диагонали
+                    {
+                        if (i <= j) edges.Add(new int[] { 'A' + i, 'A' + j, M[i, j] });
+                    }
                 }
             }
 
+
+            string sep = IsDirectedGraph() ? "->" : "-";
             foreach (int[] edge in edges)
             {
-                Console.WriteLine("{0}->{1} ({2})", Convert.ToChar(edge[0]), Convert.ToChar(edge[1]), edge[2]);
+                    if (IsWeightedGraph())
+                        Console.WriteLine($"{Convert.ToChar(edge[0])}{sep}{Convert.ToChar(edge[1])} ({edge[2]})");
+                    else
+                        Console.WriteLine($"{Convert.ToChar(edge[0])}{sep}{Convert.ToChar(edge[1])}");
             }
         }
         static void PrintAdjacencyLists()
@@ -284,7 +296,7 @@ namespace lab2
                 //Все пути что есть
                 foreach (int[] edge in AdjacencyLists[i])
                 {
-                    Console.Write(Convert.ToChar(edge[0] + 'A') + $"({edge[1]}) ");
+                    Console.Write(Convert.ToChar(edge[0] + 'A') + (IsWeightedGraph() ? $"({edge[1]}) " : " "));
                 }
                 Console.WriteLine();
             }
@@ -355,12 +367,14 @@ namespace lab2
             return false;
         }
 
-        static void PrintMatrixOfShortestDist()
+        static void FloydWarshall()
         {
+            Console.WriteLine("МАТРИЦА КРАТЧАЙШИХ РАССТОЯНИЙ (АЛГОРИТМ ФЛОЙДА - УОРШЕЛЛА)");
 
         }
-        static void PrintShortestDistToEveryV()
+        static void Dijkstra()
         {
+            Console.WriteLine("КРАТЧАЙШЕЕ РАССТОЯНИЕ ОТ ВЕРШИНЫ ДО ОСТАЛЬНЫХ ВЕРШИН (АЛГОРИТМ ДЕЙКСТРЫ)");
 
         }
 
