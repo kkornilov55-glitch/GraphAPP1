@@ -152,7 +152,7 @@ namespace lab2
                         return false;
                     }
 
-                    currentStringMass = currentString.Split(" ");
+                    currentStringMass = currentString.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
                     if (currentStringMass.Length != N)
                     {
@@ -205,28 +205,7 @@ namespace lab2
         static void PrintAdjacencyMatrix()
         {
             Console.WriteLine("МАТРИЦА СМЕЖНОСТИ");
-
-            //Столбцы
-            for (int i = 0; i < N; i++)
-            {
-                Console.Write("\t" + Convert.ToChar('A' + i));
-            }
-            Console.WriteLine();
-
-            //Строки
-            for (int i = 0; i < N; i++)
-            {
-                Console.Write(Convert.ToChar('A' + i));
-
-                for (int j = 0; j < N; j++)
-                {
-                    if (M[i, j] == INF || M[i, j] == 0)
-                        Console.Write("\t" + '-');
-                    else
-                        Console.Write("\t" + M[i,j]);
-                }
-                Console.WriteLine();
-            }
+            PrintMatrix(M);
         }
         static void PrintListEdges()
         {
@@ -371,11 +350,70 @@ namespace lab2
         {
             Console.WriteLine("МАТРИЦА КРАТЧАЙШИХ РАССТОЯНИЙ (АЛГОРИТМ ФЛОЙДА - УОРШЕЛЛА)");
 
+            //Копируем матрицу игнорируя петли
+            int[,] R = new int[N,N];
+            for (int i = 0; i < N; ++i)
+                for (int j = 0; j < N; ++j)
+                    R[i, j] = i == j ? 0 : M[i, j];
+
+            for (int k = 0; k < N; k++)
+            {
+                for (int i = 0; i < N; i++)
+                {
+                    for (int j = 0; j < N; j++) 
+                        R[i, j] = Math.Min(R[i, j], R[i, k] + R[k, j]);
+                }
+            }
+
+            PrintMatrix(R);
+        }
+        static void PrintMatrix(int[,] T)
+        {
+            //Столбцы
+            for (int i = 0; i < N; i++)
+            {
+                Console.Write("\t" + Convert.ToChar('A' + i));
+            }
+            Console.WriteLine();
+
+            //Строки
+            for (int i = 0; i < N; i++)
+            {
+                Console.Write(Convert.ToChar('A' + i));
+
+                for (int j = 0; j < N; j++)
+                {
+                    if (T[i, j] == INF || T[i, j] == 0)
+                        Console.Write("\t" + '-');
+                    else
+                        Console.Write("\t" + T[i, j]);
+                }
+                Console.WriteLine();
+            }
         }
         static void Dijkstra()
         {
             Console.WriteLine("КРАТЧАЙШЕЕ РАССТОЯНИЕ ОТ ВЕРШИНЫ ДО ОСТАЛЬНЫХ ВЕРШИН (АЛГОРИТМ ДЕЙКСТРЫ)");
 
+        }
+        static int GetVertex()
+        {
+            char V = ' ', maxLetter = Convert.ToChar('A' + N - 1);
+
+            Console.Write("Введите имя исходной вершины (A-{0:C})", maxLetter);
+            
+            try
+            {
+                V = char.ToUpper(char.Parse(Console.ReadLine()));
+                if (V > maxLetter || V < 'A') throw new InvalidDataException();
+            }
+            catch
+            {
+                Error("Неверно указана вершина");
+                return -1;
+            }
+
+            return V - 'A';
         }
 
         static void Error(string message)
