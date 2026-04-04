@@ -10,6 +10,7 @@ namespace lab2
         const byte INF = byte.MaxValue;
         static int N; //Количество вершин графа
         static int[,] M; //Матрица смежности
+        static int[] Parents; //Родители вершин
 
         static void Main(string[] args)
         {
@@ -393,8 +394,52 @@ namespace lab2
         }
         static void Dijkstra()
         {
-            Console.WriteLine("КРАТЧАЙШЕЕ РАССТОЯНИЕ ОТ ВЕРШИНЫ ДО ОСТАЛЬНЫХ ВЕРШИН (АЛГОРИТМ ДЕЙКСТРЫ)");
+            Parents = new int[N];
+            for (int i = 0; i < N; i++) Parents[i] = -1;
 
+
+            Console.WriteLine("КРАТЧАЙШЕЕ РАССТОЯНИЕ ОТ ВЕРШИНЫ ДО ОСТАЛЬНЫХ ВЕРШИН (АЛГОРИТМ ДЕЙКСТРЫ)");
+            int S = GetVertex();
+            if (S == -1) return;
+
+            int[] Distance = new int[N];
+            bool[] Visited = new bool[N];
+            for (int i = 0; i < N; ++i)
+            {
+                Distance[i] = INF;
+                Visited[i] = false;
+            }
+            Distance[S] = 0;
+
+            int MinD;
+            do
+            {
+                MinD = INF;
+                int MinV = -1;
+                for (int i = 0; i < N; ++i)
+                    if (Distance[i] < MinD && !Visited[i])
+                    {
+                        MinD = Distance[i];
+                        MinV = i;
+                    }
+                if (MinV == -1) break;
+                for (int i = 0; i < N; ++i)
+                    if (M[MinV, i] < INF && !Visited[i])
+                    {
+                        int newDist = Distance[MinV] + M[MinV, i];
+                        if (newDist < Distance[i])
+                        {
+                            Distance[i] = newDist;
+                            Parents[i] = MinV;
+                        }
+                    }
+                Visited[MinV] = true;
+            } while (MinD < INF);
+
+            Console.WriteLine("Кратчайшие расстояния до вершин:");
+            PrintByVertices(Distance);
+            Console.WriteLine();
+            PrintWays(S);
         }
         static int GetVertex()
         {
@@ -414,6 +459,61 @@ namespace lab2
             }
 
             return V - 'A';
+        }
+        static void PrintByVertices(int[] D)
+        {
+            // Вывод буквенных обозначений вершин (заголовок)
+            for (int i = 0; i < N; ++i)
+                Console.Write("\t" + Convert.ToChar('A' + i));
+            Console.WriteLine();
+
+            // Вывод значений кратчайших расстояний
+            for (int i = 0; i < N; ++i)
+            {
+                if (D[i] == INF)
+                    Console.Write("\t" + '-');
+                else
+                    Console.Write("\t" + D[i]);
+            }
+            Console.WriteLine();
+        }
+        static void PrintWays(int startV)
+        {
+            var way = new List<char>();
+            int current;
+
+            Console.WriteLine("Пути:");
+            //Для каждой вершины
+            for (int i = 0; i < N; i++)
+            {
+                way.Clear();
+                current = i; //Текущая вершина
+
+                if (current == startV) continue;
+                if (current == -1) break;
+
+                do
+                {
+                    //Добавляем буквенное представление в "Путь"
+                    way.Add(Convert.ToChar('A' + current));
+                    //Меняем текущую на её родителя
+                    current = Parents[current];
+                } while (current != startV && current != -1);
+
+                //Добрались
+                if (current == startV)
+                {
+                    way.Reverse();
+                    Console.Write(Convert.ToChar(startV + 'A') + " -> " + string.Join(" -> ", way));
+                }
+                else //Не добрались
+                {
+                    Console.Write("Из {0} нет пути в {1}", Convert.ToChar(startV + 'A'), Convert.ToChar(i + 'A'));
+                }
+
+                Console.WriteLine();
+            }
+            return;
         }
 
         static void Error(string message)
