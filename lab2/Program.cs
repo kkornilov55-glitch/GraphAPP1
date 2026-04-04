@@ -504,7 +504,7 @@ namespace lab2
                 if (current == startV)
                 {
                     way.Reverse();
-                    Console.Write(Convert.ToChar(startV + 'A') + " -> " + string.Join(" -> ", way));
+                    Console.Write("{0}: {1} -> {2}", way[^1], Convert.ToChar(startV + 'A'), string.Join(" -> ", way));
                 }
                 else //Не добрались
                 {
