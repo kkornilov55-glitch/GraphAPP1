@@ -77,11 +77,13 @@ namespace lab2
                         "4. Определение свойств графа.\n" +
                         "5. Матрица кратчайших расстояний (алгоритм Флойда - Уоршелла).\n" +
                         "6. Кратчайшее расстояние от вершины до остальных вершин (алгоритм Дейкстры).\n" +
-                        "7. Выход из программы."
+                        "7. Минимум переходов от вершины до остальных вершин (поиск в ширину).\n" +
+                        "8. Связность графа и определение циклов (поиск в глубину).\n" +
+                        "9. Выход из программы."
                         );
-                    Console.WriteLine("Введите номер действия (1 .. 7):");
+                    Console.WriteLine("Введите номер действия (1 .. 9):");
 
-                    if (!int.TryParse(Console.ReadLine(), out int Case) || Case > 7 || Case < 1)
+                    if (!int.TryParse(Console.ReadLine(), out int Case) || Case > 9 || Case < 1)
                     {
                         Error("Некорректный номер операции");
                         continue;
@@ -109,6 +111,12 @@ namespace lab2
                             Dijkstra();
                             break;
                         case 7:
+                            BFS();
+                            break;
+                        case 8:
+                            DFS();
+                            break;
+                        case 9:
                             Console.Write("ВЫХОД ИЗ ПРОГРАММЫ");
                             Console.ReadKey();
                             return;
@@ -514,6 +522,16 @@ namespace lab2
                 Console.WriteLine();
             }
             return;
+        }
+        static void BFS()
+        {
+            Console.WriteLine("МИНИМУМ ПЕРЕХОДОВ ОТ ВЕРШИНЫ ДО ОСТАЛЬНЫХ ВЕРШИН (ПОИСК В ШИРИНУ)");
+
+        }
+        static void DFS()
+        {
+            Console.WriteLine("СВЯЗНОСТЬ ГРАФА И ОПРЕДЕЛЕНИЕ ЦИКЛОВ (ПОИСК В ГЛУБИНУ)");
+
         }
 
         static void Error(string message)
