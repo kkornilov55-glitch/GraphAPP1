@@ -447,6 +447,7 @@ namespace lab2
             Console.WriteLine("Кратчайшие расстояния до вершин:");
             PrintByVertices(Distance);
             Console.WriteLine();
+            Console.WriteLine("Пути:");
             PrintWays(S);
         }
         static int GetVertex()
@@ -490,7 +491,6 @@ namespace lab2
             var way = new List<char>();
             int current;
 
-            Console.WriteLine("Пути:");
             //Для каждой вершины
             for (int i = 0; i < N; i++)
             {
@@ -526,7 +526,56 @@ namespace lab2
         static void BFS()
         {
             Console.WriteLine("МИНИМУМ ПЕРЕХОДОВ ОТ ВЕРШИНЫ ДО ОСТАЛЬНЫХ ВЕРШИН (ПОИСК В ШИРИНУ)");
+            int startV = GetVertex();
+            if (startV == -1) return;
 
+            Parents = new int[N];
+            for (int i = 0; i < N; i++) Parents[i] = -1;
+
+            bool[] visited = new bool[N];
+            int[] dist = new int[N];
+            Queue<int> q = new Queue<int>();
+            for (int i = 0; i < N; i++)
+            {
+                visited[i] = false;
+                dist[i] = INF;
+            }
+
+            dist[startV] = 0;
+            q.Enqueue(startV);
+            Console.Write("+{0}({1}) ", Convert.ToChar(startV + 'A'), dist[startV]);
+            visited[startV] = true;
+
+            int currentV;
+            while (q.Count > 0)
+            {
+                currentV = q.Dequeue();
+                Console.Write("-{0}({1}) ", Convert.ToChar(currentV + 'A'), dist[currentV]);
+                for (int i = 0; i < N; i++)
+                {
+                    int neighbor = M[currentV, i];
+                    if (neighbor > 0 && neighbor < INF && !visited[i])
+                    {
+                        dist[i] = dist[currentV] + 1;
+                        q.Enqueue(i);
+                        Console.Write("+{0}({1}) ", Convert.ToChar(i + 'A'), dist[i]);
+                        Parents[i] = currentV;
+                        visited[i] = true;
+                    }
+                }
+            }
+
+            Console.WriteLine("\nМИНИМУМ ПЕРЕХОДОВ:");
+            for (int i = 0; i < N; i++)
+                Console.Write($"\t{Convert.ToChar(i + 'A')}");
+            Console.WriteLine();
+            for (int i = 0; i < N; i++)
+                Console.Write($"\t{dist[i]}");
+
+            Console.WriteLine();
+
+            Console.WriteLine("МИНИМАЛЬНЫЕ ПЕРЕХОДЫ:");
+            PrintWays(startV);
         }
         static void DFS()
         {
