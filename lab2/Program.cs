@@ -11,6 +11,7 @@ namespace lab2
         static int N; //Количество вершин графа
         static int[,] M; //Матрица смежности
         static int[] Parents; //Родители вершин
+        enum Color {White, Gray, Black}
 
         static void Main(string[] args)
         {
@@ -570,7 +571,11 @@ namespace lab2
                 Console.Write($"\t{Convert.ToChar(i + 'A')}");
             Console.WriteLine();
             for (int i = 0; i < N; i++)
-                Console.Write($"\t{dist[i]}");
+            {
+                if (dist[i] < INF) Console.Write($"\t{dist[i]}");
+                else Console.Write($"\t-");
+            }
+                
 
             Console.WriteLine();
 
@@ -580,6 +585,74 @@ namespace lab2
         static void DFS()
         {
             Console.WriteLine("СВЯЗНОСТЬ ГРАФА И ОПРЕДЕЛЕНИЕ ЦИКЛОВ (ПОИСК В ГЛУБИНУ)");
+
+            int[] Components = new int[N];
+            Stack<int> GreyPath = new Stack<int>();
+            Color[] color = new Color[N];
+            for (int i = 0; i < N; i++)
+            {
+                Components[i] = 0;
+                color[i] = Color.White;
+            }
+
+            int ComponentsCount = 0;
+            for (int i = 0; i < N; i++)
+            {
+                if (Components[i] == 0)
+                {
+                    ComponentsCount++;
+                    GreyPath.Push(i);
+                    while(GreyPath.Count > 0)
+                    {
+                        int currV = GreyPath.Peek();
+                        if (color[currV] == Color.White)
+                        {
+                            color[currV] = Color.Gray;
+                            Console.Write("(" + Convert.ToChar(currV + 'A') + " ");
+                            Components[currV] = ComponentsCount;
+                        }
+
+                        bool FoundWhite = false;
+                        for (int j = 0; j < N; j++)
+                        {
+                            if (M[currV, j] > 0 && M[currV, j] < INF && color[j] == Color.White)
+                            {
+                                GreyPath.Push(j);
+                                FoundWhite = true;
+                                break;
+                            }
+                        }
+                        if (!FoundWhite)
+                        {
+                            color[currV] = Color.Black;
+                            Console.Write(Convert.ToChar(currV + 'A') + ") ");
+                            GreyPath.Pop();
+                        }
+                    }
+                }
+            }
+
+            Console.WriteLine();
+
+            bool Directed = IsDirectedGraph();
+            if (Directed) Console.WriteLine("Граф ориентированный.Связность не определяется.");
+            if (!Directed)
+            {
+                if (ComponentsCount == 1)
+                    Console.WriteLine("Граф связный.");
+                else
+                {
+                    Console.WriteLine("Граф не связный. Количество компонент: {0:D}", ComponentsCount);
+                    for (int i = 1; i <= ComponentsCount; i++)
+                    {
+                        Console.WriteLine("{0:D}:", i);
+                        for (int j = 0; j < N; j++)
+                            if (Components[j] == i) Console.Write("{0:D} ", Convert.ToChar(j + 'A'));
+                        Console.WriteLine();
+                    }
+                }
+            }
+
 
         }
 
