@@ -586,8 +586,10 @@ namespace lab2
         {
             Console.WriteLine("СВЯЗНОСТЬ ГРАФА И ОПРЕДЕЛЕНИЕ ЦИКЛОВ (ПОИСК В ГЛУБИНУ)");
 
+            bool Directed = IsDirectedGraph();
             int[] Components = new int[N];
             Stack<int> GreyPath = new Stack<int>();
+            List<int> Cycle = new List<int>();
             Color[] color = new Color[N];
             for (int i = 0; i < N; i++)
             {
@@ -615,11 +617,32 @@ namespace lab2
                         bool FoundWhite = false;
                         for (int j = 0; j < N; j++)
                         {
-                            if (M[currV, j] > 0 && M[currV, j] < INF && color[j] == Color.White)
+                            if (M[currV, j] > 0 && M[currV, j] < INF)
                             {
-                                GreyPath.Push(j);
-                                FoundWhite = true;
-                                break;
+                                if (color[j] == Color.Gray)
+                                {
+                                    //GreyPath.Pop();
+                                    //int Prev = GreyPath.Count != 0 ? GreyPath.Peek() : -1;
+                                    int currV_Temp = GreyPath.Pop();
+                                    int Prev = GreyPath.Count != 0 ? GreyPath.Peek() : -1;
+                                    GreyPath.Push(currV_Temp);
+
+                                    if (Directed || !Directed && j != Prev)
+                                    {
+                                        Cycle.Clear();
+                                        while (j != GreyPath.Peek())
+                                            Cycle.Insert(0, GreyPath.Pop());
+                                        foreach (int U in Cycle)
+                                            GreyPath.Push(U);
+                                        Cycle.Insert(0, j);
+                                    }
+                                }
+                                if (color[j] == Color.White)
+                                {
+                                    GreyPath.Push(j);
+                                    FoundWhite = true;
+                                    break;
+                                }
                             }
                         }
                         if (!FoundWhite)
@@ -634,7 +657,16 @@ namespace lab2
 
             Console.WriteLine();
 
-            bool Directed = IsDirectedGraph();
+            if (Cycle.Count == 0) 
+                Console.WriteLine("В графе нет циклов.");
+            else
+            {
+                Console.Write("В графе есть цикл: ");
+                foreach (int V in Cycle)
+                    Console.Write("{0:D} ", Convert.ToChar(V + 'A'));
+                Console.WriteLine();
+            }
+
             if (Directed) Console.WriteLine("Граф ориентированный.Связность не определяется.");
             if (!Directed)
             {
